@@ -11,11 +11,21 @@ LOCAL_MODULE := MyGame_shared
 
 LOCAL_MODULE_FILENAME := libMyGame
 
-LOCAL_SRC_FILES := $(LOCAL_PATH)/hellocpp/main.cpp \
-                   $(LOCAL_PATH)/../../../Classes/AppDelegate.cpp \
-                   $(LOCAL_PATH)/../../../Classes/HelloWorldScene.cpp
+#-------------- .cpp  .c ---------------------
+SRC_SUFFIX := *.cpp *.c
+SRC_ROOT := $(LOCAL_PATH)/../../../Classes \
+			$(LOCAL_PATH)/
+# recursive wildcard
+rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d)))
+SRC_FILES := $(call rwildcard,$(SRC_ROOT)/,$(SRC_SUFFIX))
+LOCAL_SRC_FILES := hellocpp/main.cpp
+LOCAL_SRC_FILES += $(SRC_FILES:$(LOCAL_PATH)/%=%)
+#--------------.h  ---------------------
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../Classes
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../Classes \
+					$(LOCAL_PATH)/CommonFiles \
+					$(LOCAL_PATH)/
+#-----------------------------------
 
 # _COCOS_HEADER_ANDROID_BEGIN
 # _COCOS_HEADER_ANDROID_END

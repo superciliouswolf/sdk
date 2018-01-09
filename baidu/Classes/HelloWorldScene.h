@@ -1,8 +1,10 @@
 #ifndef __HELLOWORLD_SCENE_H__
 #define __HELLOWORLD_SCENE_H__
-
 #include "cocos2d.h"
-
+#include "Java_C.h"
+#include "cocostudio/CocoStudio.h"
+#include "ui/CocosGUI.h"
+using namespace cocostudio::timeline;
 class HelloWorld : public cocos2d::Scene
 {
 public:
@@ -11,9 +13,7 @@ public:
     virtual bool init();
     
     // a selector callback
-    void menuCloseCallback(cocos2d::Ref* pSender);
-    
-    // implement the "static create()" method manually
+    void btnCallbuck(cocos2d::Ref* pSender);
     CREATE_FUNC(HelloWorld);
 };
 

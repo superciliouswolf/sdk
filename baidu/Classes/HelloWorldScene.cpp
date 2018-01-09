@@ -1,113 +1,98 @@
 #include "HelloWorldScene.h"
 #include "SimpleAudioEngine.h"
 
-USING_NS_CC;
-
+USING_NS_CC;  
+   
 Scene* HelloWorld::createScene()
 {
-    return HelloWorld::create();
-}
-
-// Print useful error message instead of segfaulting when files are not there.
-static void problemLoading(const char* filename)
-{
-    printf("Error while loading: %s\n", filename);
-    printf("Depending on how you compiled you might have to add 'Resources/' in front of filenames in HelloWorldScene.cpp\n");
+    return HelloWorld::create();  
 }
 
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
-{
+{   
     //////////////////////////////
     // 1. super init first
     if ( !Scene::init() )
     {
         return false;
     }
-
+    
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    /////////////////////////////
-    // 2. add a menu item with "X" image, which is clicked to quit the program
-    //    you may modify it.
+	Vector<MenuItem*> itemVector;
+    
+	auto moreGame = MenuItemFont::create("MoreGame",CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(moreGame);
 
-    // add a "close" icon to exit the progress. it's an autorelease object
-    auto closeItem = MenuItemImage::create(
-                                           "CloseNormal.png",
-                                           "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
+	auto checkOperator= MenuItemFont::create("checkOperator",CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(checkOperator);
 
-    if (closeItem == nullptr ||
-        closeItem->getContentSize().width <= 0 ||
-        closeItem->getContentSize().height <= 0)
-    {
-        problemLoading("'CloseNormal.png' and 'CloseSelected.png'");
-    }
-    else
-    {
-        float x = origin.x + visibleSize.width - closeItem->getContentSize().width/2;
-        float y = origin.y + closeItem->getContentSize().height/2;
-        closeItem->setPosition(Vec2(x,y));
-    }
+	auto pay = MenuItemFont::create("pay", CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(pay);
 
-    // create menu, it's an autorelease object
-    auto menu = Menu::create(closeItem, NULL);
+	auto ScreenShotShare = MenuItemFont::create("ScreenShotShare", CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(ScreenShotShare);
+
+	auto qqlogin = MenuItemFont::create("qqlogin", CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(qqlogin);
+
+	auto wxlogin = MenuItemFont::create("wxlogin", CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(wxlogin);
+
+	auto wxQrCodelogin = MenuItemFont::create("wxQrCodelogin", CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(wxQrCodelogin);
+
+
+	auto loginout = MenuItemFont::create("loginout", CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(loginout);
+	
+
+	auto closeItem = MenuItemFont::create("Exit", CC_CALLBACK_1(HelloWorld::btnCallbuck, this));
+	itemVector.pushBack(closeItem);
+
+	int i = 0;
+	int j = 1;
+	//Vec2 vec = visibleSize;
+	float width = 0;
+	float height = 0;
+	for (Vector<MenuItem*>::iterator itr = itemVector.begin(); itr < itemVector.end(); itr++) {
+		float widthTemp = (*itr)->getBoundingBox().size.width;
+		float heightTemp = (*itr)->getBoundingBox().size.height;
+		
+		if (widthTemp > width) {
+			width = widthTemp;
+		}
+		if (heightTemp > height) {
+			height = heightTemp;
+		}
+	}
+	for (Vector<MenuItem*>::iterator itr = itemVector.begin(); itr < itemVector.end(); itr++) {
+		if (visibleSize.height - height*j+ origin.y<height) {
+			j = 1;
+			i++;
+		}
+		(*itr)->setPosition(Vec2(width*(i+0.5)+origin.x, visibleSize.height - height*j + origin.y));
+		j++;
+	}
+	
+
+    auto menu = Menu::createWithArray(itemVector);
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
-
-    /////////////////////////////
-    // 3. add your codes below...
-
-    // add a label shows "Hello World"
-    // create and initialize a label
-
-    auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
-    if (label == nullptr)
-    {
-        problemLoading("'fonts/Marker Felt.ttf'");
-    }
-    else
-    {
-        // position the label on the center of the screen
-        label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                                origin.y + visibleSize.height - label->getContentSize().height));
-
-        // add the label as a child to this layer
-        this->addChild(label, 1);
-    }
-
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
-    if (sprite == nullptr)
-    {
-        problemLoading("'HelloWorld.png'");
-    }
-    else
-    {
-        // position the sprite on the center of the screen
-        sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
-        // add the sprite as a child to this layer
-        this->addChild(sprite, 0);
-    }
     return true;
 }
 
-
-void HelloWorld::menuCloseCallback(Ref* pSender)
-{
-    //Close the cocos2d-x game scene and quit the application
-    Director::getInstance()->end();
-
-    #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    exit(0);
-#endif
-
-    /*To navigate back to native iOS screen(if present) without quitting the application  ,do not use Director::getInstance()->end() and exit(0) as given above,instead trigger a custom event created in RootViewController.mm as below*/
-
-    //EventCustom customEndEvent("game_scene_close_event");
-    //_eventDispatcher->dispatchEvent(&customEndEvent);
-
-
+void HelloWorld::btnCallbuck(Ref* pSender) {
+	std::string str = static_cast<MenuItemFont*>(pSender)->getString();
+	bool isok = Java_C::getStaticMethodInfo("org/cocos2dx/cpp/AppActivity", str.c_str(), "()V");
+	if(!str.compare("Exit")&&!isok){
+		Director::getInstance()->end();
+		#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+            exit(0);
+		#endif
+	}
 }
+
+
